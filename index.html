@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en" data-mode="dark" data-theme="midnight">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#120e1c" id="metaThemeColor" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tasks List" />
+  <meta name="application-name" content="Tasks List" />
+  <meta name="description" content="Tasks List — Cross-device installable To-Do & Task Card Manager by Ajay-Dhangar" />
+  <title>Tasks List — Cross-Device PWA Task Manager</title>
+
+  <!-- Dynamic PWA Manifest Link (Populated via Blob URL in JS) -->
+  <link rel="manifest" id="pwaManifestLink" />
+  <!-- Apple Touch Icon (SVG Data URI) -->
+  <link rel="apple-touch-icon" id="appleTouchIcon" />
+
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ==========================================================================
+       1. DESIGN TOKENS & MULTI-THEME / DARK-LIGHT SYSTEM
+       ========================================================================== */
+    :root {
+      --transition-speed: 0.28s;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-full: 9999px;
+
+      /* Safe-area insets for notched iOS/Android devices */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+
+      /* Default Accent Tokens */
+      --accent-primary: #facc15;
+      --accent-primary-text: #0f172a;
+      --accent-secondary: #3b82f6;
+      --accent-glow: rgba(250, 204, 21, 0.28);
+
+      /* Status Colors */
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.16);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.16);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.16);
+      --info: #38bdf8;
+      --info-bg: rgba(56, 189, 248, 0.16);
+    }
+
+    /* ---------------- DARK MODE BASE ---------------- */
+    html[data-mode="dark"] {
+      --bg-app: #120e1c;
+      --bg-gradient: radial-gradient(circle at 15% 15%, #1e1633 0%, #120e1c 55%, #0c0914 100%);
+      --bg-surface: rgba(26, 21, 44, 0.84);
+      --bg-card: #1d1830;
+      --bg-card-hover: #251f3d;
+      --bg-input: #141022;
+      --bg-pill: rgba(255, 255, 255, 0.08);
+      --text-primary: #f8fafc;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border-color: rgba(255, 255, 255, 0.12);
+      --shadow-card: 0 12px 32px -6px rgba(0, 0, 0, 0.45), 0 0 1px 1px rgba(255, 255, 255, 0.06);
+      --shadow-dialog: 0 25px 60px -12px rgba(0, 0, 0, 0.78);
+      --card-item-text: #f1f5f9;
+    }
+
+    /* ---------------- LIGHT MODE BASE ---------------- */
+    html[data-mode="light"] {
+      --bg-app: #f4f6fb;
+      --bg-gradient: radial-gradient(circle at 10% 10%, #ffffff 0%, #f1f5f9 60%, #e2e8f0 100%);
+      --bg-surface: rgba(255, 255, 255, 0.88);
+      --bg-card: #ffffff;
+      --bg-card-hover: #f8fafc;
+      --bg-input: #f1f5f9;
+      --bg-pill: rgba(15, 23, 42, 0.06);
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --border-color: rgba(15, 23, 42, 0.1);
+      --shadow-card: 0 10px 28px -5px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+      --shadow-dialog: 0 24px 50px -12px rgba(15, 23, 42, 0.25);
+      --card-item-text: #1e293b;
+      --accent-primary: #eab308;
+    }
+
+    /* ---------------- THEME 1: MIDNIGHT GOLD ---------------- */
+    html[data-theme="midnight"] {
+      --accent-primary: #facc15;
+      --accent-secondary: #3b82f6;
+      --accent-glow: rgba(250, 204, 21, 0.25);
+    }
+    html[data-mode="light"][data-theme="midnight"] {
+      --accent-primary: #d97706;
+      --accent-secondary: #2563eb;
+    }
+
+    /* ---------------- THEME 2: SUNSET GRADIENT ---------------- */
+    html[data-theme="sunset"] {
+      --bg-gradient: linear-gradient(125deg, #f43f5e 0%, #a855f7 48%, #3b82f6 100%);
+      --accent-primary: #fde047;
+      --accent-secondary: #2563eb;
+      --accent-glow: rgba(253, 224, 71, 0.35);
+    }
+    html[data-mode="dark"][data-theme="sunset"] {
+      --bg-surface: rgba(20, 16, 36, 0.68);
+      --bg-card: linear-gradient(155deg, rgba(225, 65, 102, 0.88) 0%, rgba(217, 155, 78, 0.9) 100%);
+      --bg-card-hover: linear-gradient(155deg, rgba(235, 75, 112, 0.94) 0%, rgba(227, 165, 88, 0.96) 100%);
+      --text-primary: #ffffff;
+      --text-secondary: #f8fafc;
+      --text-muted: #e2e8f0;
+      --card-item-text: #ffffff;
+      --border-color: rgba(255, 255, 255, 0.28);
+    }
+    html[data-mode="light"][data-theme="sunset"] {
+      --bg-gradient: linear-gradient(125deg, #ffe4e6 0%, #f3e8ff 50%, #dbeafe 100%);
+      --bg-card: linear-gradient(155deg, #fff1f2 0%, #fef3c7 100%);
+      --accent-primary: #e11d48;
+      --accent-secondary: #4f46e5;
+    }
+
+    /* ---------------- THEME 3: OCEAN BREEZE ---------------- */
+    html[data-theme="ocean"] {
+      --accent-primary: #38bdf8;
+      --accent-secondary: #06b6d4;
+      --accent-glow: rgba(56, 189, 248, 0.28);
+    }
+    html[data-mode="dark"][data-theme="ocean"] {
+      --bg-gradient: radial-gradient(circle at 80% 10%, #0c4a6e 0%, #082f49 45%, #041524 100%);
+      --bg-card: #0b2942;
+      --bg-card-hover: #103757;
+      --bg-input: #061b2e;
+    }
+    html[data-mode="light"][data-theme="ocean"] {
+      --bg-gradient: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 60%, #ccfbf1 100%);
+      --accent-primary: #0284c7;
+    }
+
+    /* ---------------- THEME 4: EMERALD FOREST ---------------- */
+    html[data-theme="emerald"] {
+      --accent-primary: #34d399;
+      --accent-secondary: #10b981;
+      --accent-glow: rgba(52, 211, 153, 0.25);
+    }
+    html[data-mode="dark"][data-theme="emerald"] {
+      --bg-gradient: radial-gradient(circle at 20% 20%, #064e3b 0%, #022c22 55%, #011813 100%);
+      --bg-card: #063729;
+      --bg-card-hover: #094735;
+      --bg-input: #032219;
+    }
+    html[data-mode="light"][data-theme="emerald"] {
+      --bg-gradient: linear-gradient(135deg, #d1fae5 0%, #ecfdf5 60%, #fef9c3 100%);
+      --accent-primary: #059669;
+    }
+
+    /* ---------------- THEME 5: ROYAL VIOLET ---------------- */
+    html[data-theme="violet"] {
+      --accent-primary: #c084fc;
+      --accent-secondary: #8b5cf6;
+      --accent-glow: rgba(192, 132, 252, 0.28);
+    }
+    html[data-mode="dark"][data-theme="violet"] {
+      --bg-gradient: radial-gradient(circle at 85% 15%, #3b0764 0%, #1e1035 55%, #0f071c 100%);
+      --bg-card: #271545;
+      --bg-card-hover: #321c57;
+      --bg-input: #170b2b;
+    }
+    html[data-mode="light"][data-theme="violet"] {
+      --bg-gradient: linear-gradient(135deg, #f3e8ff 0%, #faf5ff 60%, #fce7f3 100%);
+      --accent-primary: #7e22ce;
+    }
+
+    /* ==========================================================================
+       2. GLOBAL RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-app);
+      background-image: var(--bg-gradient);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      min-height: 40px;
+      transition: transform 0.16s ease, background-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.96);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.35); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.55); }
+
+    /* ==========================================================================
+       3. HEADER & TOP NAVIGATION BAR
+       ========================================================================== */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: calc(0.85rem + var(--safe-top)) calc(1.5rem + var(--safe-right)) 0.85rem calc(1.5rem + var(--safe-left));
+    }
+
+    .header-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1.45rem, 2.5vw, 1.95rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      user-select: none;
+      cursor: pointer;
+    }
+
+    .brand .accent {
+      color: var(--accent-primary);
+      text-shadow: 0 0 24px var(--accent-glow);
+    }
+
+    .brand .secondary-word {
+      color: var(--text-primary);
+    }
+
+    .pwa-status-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    /* Multi-Theme Swatch Selector Pill */
+    .theme-picker {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--bg-pill);
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      min-height: 40px;
+    }
+
+    .theme-swatch {
+      width: 22px;
+      height: 22px;
+      min-height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .theme-swatch:hover { transform: scale(1.18); }
+    .theme-swatch.active {
+      border-color: var(--text-primary);
+      transform: scale(1.15);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .swatch-midnight { background: linear-gradient(135deg, #1e1b4b 45%, #facc15 55%); }
+    .swatch-sunset   { background: linear-gradient(135deg, #f43f5e 0%, #3b82f6 100%); }
+    .swatch-ocean    { background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); }
+    .swatch-emerald  { background: linear-gradient(135deg, #059669 0%, #34d399 100%); }
+    .swatch-violet   { background: linear-gradient(135deg, #7e22ce 0%, #c084fc 100%); }
+
+    /* Touch-Friendly Utility Buttons (Min 44px on touch) */
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-full);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+    }
+
+    /* Install App Button */
+    .btn-install-app {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.95rem;
+      min-height: 42px;
+      border-radius: var(--radius-full);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    .btn-install-app:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-card-hover);
+    }
+
+    .btn-install-app.installed {
+      display: none;
+    }
+
+    /* Primary "+ Add Task" CTA */
+    .btn-add-task {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.15rem;
+      min-height: 42px;
+      border-radius: var(--radius-full);
+      background: var(--accent-primary);
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 0.94rem;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-add-task:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+    }
+
+    .btn-add-task svg { stroke-width: 2.5; }
+
+    /* ==========================================================================
+       4. MAIN WORKSPACE, STATS STRIP & FILTER TOOLBAR
+       ========================================================================== */
+    .main-wrapper {
+      flex: 1;
+      width: 100%;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 1.5rem calc(1.5rem + var(--safe-right)) calc(5.5rem + var(--safe-bottom)) calc(1.5rem + var(--safe-left));
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .dashboard-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      animation: fadeSlideDown 0.35s ease;
+    }
+
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+      gap: 0.85rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-info span {
+      display: block;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-info strong {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-pill);
+      color: var(--accent-primary);
+    }
+
+    /* Toolbar: Search + Filter Tabs + Sort */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+      background: var(--bg-surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1 1 240px;
+      max-width: 380px;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-box input {
+      width: 100%;
+      min-height: 42px;
+      padding: 0.55rem 2.4rem 0.55rem 2.4rem;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-color);
+      background: var(--bg-input);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-box input:focus { border-color: var(--accent-primary); }
+
+    .kbd-hint {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-pill);
+      padding: 0.12rem 0.45rem;
+      border-radius: 5px;
+      border: 1px solid var(--border-color);
+      pointer-events: none;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .filter-pill {
+      padding: 0.42rem 0.95rem;
+      min-height: 38px;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--bg-pill);
+    }
+
+    .filter-pill:hover { color: var(--text-primary); }
+    .filter-pill.active {
+      background: var(--accent-primary);
+      color: #0f172a;
+    }
+
+    .sort-select {
+      min-height: 40px;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-full);
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      font-weight: 500;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       5. ANIMATED WELCOME / EMPTY STATE
+       ========================================================================== */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+      min-height: 55vh;
+      animation: fadeScaleIn 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .empty-illustration {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 28px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25), 0 0 30px var(--accent-glow);
+      animation: floatBounce 3.6s ease-in-out infinite;
+    }
+
+    .empty-illustration svg {
+      width: 54px;
+      height: 54px;
+      color: var(--accent-primary);
+    }
+
+    .empty-pulse-ring {
+      position: absolute;
+      inset: -8px;
+      border-radius: 34px;
+      border: 2px dashed var(--accent-primary);
+      opacity: 0.35;
+      animation: spinSlow 18s linear infinite;
+    }
+
+    .empty-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(1.65rem, 3.5vw, 2.35rem);
+      font-weight: 700;
+      margin-bottom: 0.65rem;
+      letter-spacing: -0.02em;
+    }
+
+    .empty-subtitle {
+      max-width: 500px;
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1.75rem;
+    }
+
+    .empty-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.85rem;
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.25rem;
+      min-height: 44px;
+      border-radius: var(--radius-full);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent-primary);
+      background: var(--bg-card-hover);
+    }
+
+    /* ==========================================================================
+       6. TASK CARDS GRID & EXPANDED FOCUSED DETAIL VIEW
+       ========================================================================== */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* Focused Single-Card View Bar */
+    .focus-header-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--bg-surface);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      animation: fadeSlideDown 0.3s ease;
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1.1rem;
+      min-height: 42px;
+      border-radius: var(--radius-full);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+
+    .btn-back:hover {
+      background: var(--accent-primary);
+      color: #0f172a;
+      border-color: var(--accent-primary);
+    }
+
+    .focus-breadcrumb {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .focus-breadcrumb strong { color: var(--text-primary); }
+
+    .focus-actions-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* Centered Expanded Card in Focused View */
+    .cards-grid.focused-mode {
+      grid-template-columns: minmax(300px, 740px);
+      justify-content: center;
+    }
+
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 340px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      animation: cardEntrance 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .task-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(250, 204, 21, 0.45);
+    }
+
+    .task-card.is-completed { border-color: rgba(34, 197, 94, 0.45); }
+
+    /* Card Top Meta Badges */
+    .card-meta-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.75rem;
+    }
+
+    .meta-badges-left {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 0.24rem 0.62rem;
+      border-radius: var(--radius-full);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 0.69rem;
+    }
+
+    .badge-high   { background: var(--danger-bg); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-medium { background: var(--warning-bg); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-low    { background: var(--info-bg); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-done   { background: var(--success-bg); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.35); }
+    .badge-tag    { background: var(--bg-pill); color: var(--text-secondary); border: 1px solid var(--border-color); }
+
+    .due-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .due-tag.overdue {
+      color: #f87171;
+      font-weight: 700;
+    }
+
+    /* Clickable Task Card Title */
+    .card-title-row {
+      text-align: center;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 0.85rem;
+    }
+
+    .card-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.32rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: color 0.2s ease;
+      word-break: break-word;
+    }
+
+    .card-title:hover { color: var(--accent-primary); }
+
+    .task-card.is-completed .card-title {
+      text-decoration: line-through;
+      opacity: 0.8;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.45;
+    }
+
+    /* Progress Bar Section */
+    .progress-wrapper { margin-bottom: 0.95rem; }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.38rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-pill);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .progress-fill.complete { background: linear-gradient(90deg, #16a34a, #4ade80); }
+
+    /* Sub-Filter Tabs inside Focused Detail View */
+    .detail-step-filters {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.85rem;
+      padding: 0.5rem 0.65rem;
+      background: var(--bg-pill);
+      border-radius: var(--radius-md);
+    }
+
+    .detail-tabs {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .detail-tab-btn {
+      min-height: 32px;
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .detail-tab-btn.active {
+      background: var(--accent-primary);
+      color: #0f172a;
+    }
+
+    /* Sub-Items List inside Task Card */
+    .items-list {
+      list-style: none;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      margin-bottom: 1.15rem;
+      max-height: 290px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .cards-grid.focused-mode .items-list { max-height: 480px; }
+
+    .empty-items-hint {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.86rem;
+      padding: 1.75rem 0.5rem;
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+    }
+
+    .empty-items-hint:hover {
+      border-color: var(--accent-primary);
+      color: var(--text-primary);
+    }
+
+    .sub-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.55rem 0.7rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-pill);
+      border: 1px solid transparent;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .sub-item:hover { border-color: var(--border-color); }
+
+    .sub-item-left {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1;
+      min-width: 0;
+      min-height: 32px;
+      cursor: pointer;
+    }
+
+    .sub-item-text {
+      font-size: 0.94rem;
+      font-weight: 500;
+      color: var(--card-item-text);
+      word-break: break-word;
+      transition: opacity 0.2s ease;
+    }
+
+    .sub-item.done .sub-item-text {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .sub-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      flex-shrink: 0;
+    }
+
+    .mini-icon-btn {
+      width: 32px;
+      height: 32px;
+      min-height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+
+    .mini-reorder {
+      color: var(--text-secondary);
+      background: rgba(148, 163, 184, 0.14);
+    }
+    .mini-reorder:hover { background: rgba(148, 163, 184, 0.28); color: var(--text-primary); }
+
+    .mini-edit {
+      color: #4ade80;
+      background: rgba(34, 197, 94, 0.14);
+    }
+    .mini-edit:hover { background: rgba(34, 197, 94, 0.28); }
+
+    .mini-delete {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.14);
+    }
+    .mini-delete:hover { background: rgba(239, 68, 68, 0.28); }
+
+    .mini-check {
+      color: var(--text-muted);
+      border: 1.5px solid var(--border-color);
+    }
+    .mini-check:hover {
+      border-color: var(--success);
+      color: var(--success);
+    }
+    .sub-item.done .mini-check {
+      background: var(--success);
+      border-color: var(--success);
+      color: #ffffff;
+    }
+
+    /* Card Bottom Action Footer */
+    .card-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border-color);
+      margin-top: auto;
+    }
+
+    .card-action-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+    }
+
+    .card-action-btn.edit-card-btn { color: #22c55e; }
+    .card-action-btn.edit-card-btn:hover { background: rgba(34, 197, 94, 0.2); }
+
+    .card-action-btn.complete-card-btn { color: #eab308; }
+    .card-action-btn.complete-card-btn.active {
+      background: var(--success);
+      color: #fff;
+      border-color: var(--success);
+    }
+
+    .card-action-btn.delete-card-btn { color: #ef4444; }
+    .card-action-btn.delete-card-btn:hover { background: rgba(239, 68, 68, 0.2); }
+
+    .card-action-btn.add-item-circle {
+      width: 44px;
+      height: 44px;
+      background: #2563eb;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45);
+    }
+    .card-action-btn.add-item-circle:hover {
+      background: #1d4ed8;
+      transform: scale(1.08);
+    }
+
+    /* ==========================================================================
+       7. MOBILE BOTTOM NAVIGATION BAR & FLOATING ACTION BUTTON
+       ========================================================================== */
+    .mobile-bottom-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 45;
+      background: var(--bg-surface);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border-color);
+      padding: 0.45rem 1rem calc(0.45rem + var(--safe-bottom));
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .mobile-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      min-width: 56px;
+      min-height: 44px;
+    }
+
+    .mobile-nav-btn.primary-fab {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+      color: #0f172a;
+      box-shadow: 0 6px 18px var(--accent-glow);
+      transform: translateY(-8px);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-bottom-bar { display: flex; }
+      .kbd-hint { display: none; }
+    }
+
+    /* ==========================================================================
+       8. NATIVE HTML <dialog> MODALS
+       ========================================================================== */
+    dialog {
+      margin: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      color: var(--text-primary);
+      padding: 0;
+      width: min(92vw, 500px);
+      box-shadow: var(--shadow-dialog);
+      overflow: hidden;
+    }
+
+    dialog::backdrop {
+      background: rgba(5, 5, 15, 0.72);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    dialog[open] {
+      animation: dialogPop 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .dialog-header {
+      padding: 1.2rem 1.5rem 0.9rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .dialog-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.28rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    .dialog-body {
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.95rem;
+      max-height: 72vh;
+      overflow-y: auto;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.38rem;
+    }
+
+    .form-group label {
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .form-control {
+      width: 100%;
+      min-height: 44px;
+      padding: 0.65rem 0.9rem;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-color);
+      background: var(--bg-input);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-control:focus { border-color: var(--accent-primary); }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+    }
+
+    /* Step-by-Step Initial Sub-Items Builder */
+    .step-items-builder {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .step-input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .step-pills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .step-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      font-size: 0.83rem;
+    }
+
+    .step-pill-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .step-pill-actions button {
+      min-height: 24px;
+      width: 24px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    .dialog-footer {
+      padding: 1rem 1.5rem 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.7rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .btn-modal-primary {
+      padding: 0.6rem 1.3rem;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      background: #22c55e;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .btn-modal-primary:hover { background: #16a34a; }
+
+    .btn-modal-danger {
+      padding: 0.6rem 1.3rem;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      background: #ef4444;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+    .btn-modal-danger:hover { background: #dc2626; }
+
+    .btn-modal-close {
+      padding: 0.6rem 1.2rem;
+      min-height: 44px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-pill);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.92rem;
+    }
+    .btn-modal-close:hover { background: rgba(239, 68, 68, 0.16); color: #f87171; }
+
+    /* PWA Install Guide Cards inside Install Dialog */
+    .install-platform-card {
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+    }
+
+    .install-platform-card h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .install-platform-card p {
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       9. TOAST NOTIFICATIONS & FOOTER
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: calc(4.8rem + var(--safe-bottom));
+      right: 1.25rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      pointer-events: none;
+    }
+
+    @media (min-width: 769px) {
+      .toast-container { bottom: 1.5rem; right: 1.5rem; }
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.75rem 1.1rem;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-primary);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+      font-size: 0.88rem;
+      font-weight: 600;
+      animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-footer {
+      text-align: center;
+      padding: 1.25rem 1rem calc(5.2rem + var(--safe-bottom));
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-surface);
+      backdrop-filter: blur(10px);
+      margin-top: auto;
+    }
+
+    @media (min-width: 769px) {
+      .app-footer { padding-bottom: 1.25rem; }
+    }
+
+    .app-footer .heart {
+      color: #f43f5e;
+      display: inline-block;
+      animation: heartbeat 1.6s infinite;
+    }
+
+    .app-footer .author {
+      color: var(--accent-primary);
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       10. KEYFRAME ANIMATIONS
+       ========================================================================== */
+    @keyframes floatBounce {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes fadeScaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes dialogPop {
+      from { opacity: 0; transform: scale(0.92) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      25% { transform: scale(1.22); }
+      50% { transform: scale(1); }
+      75% { transform: scale(1.16); }
+    }
+
+    @media (max-width: 640px) {
+      .app-header { padding: calc(0.75rem + var(--safe-top)) 1rem 0.75rem; }
+      .main-wrapper { padding: 1rem 1rem calc(5.5rem + var(--safe-bottom)); }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .header-actions { width: 100%; justify-content: space-between; }
+      .hide-on-xs { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       HEADER / NAVBAR
+       ======================================================================== -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-group">
+        <div class="brand" id="brandHomeBtn" title="Return to All Tasks (Esc)">
+          <span class="accent">Tasks</span>
+          <span class="secondary-word">List</span>
+        </div>
+        <span class="pwa-status-badge" id="appModeBadge">App</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- 5 Curated Color Themes -->
+        <div class="theme-picker" role="group" aria-label="Color Theme Selector">
+          <button class="theme-swatch swatch-midnight" data-theme-choice="midnight" title="Midnight Gold Theme"></button>
+          <button class="theme-swatch swatch-sunset" data-theme-choice="sunset" title="Sunset Gradient Theme"></button>
+          <button class="theme-swatch swatch-ocean" data-theme-choice="ocean" title="Ocean Breeze Theme"></button>
+          <button class="theme-swatch swatch-emerald" data-theme-choice="emerald" title="Emerald Forest Theme"></button>
+          <button class="theme-swatch swatch-violet" data-theme-choice="violet" title="Royal Violet Theme"></button>
+        </div>
+
+        <!-- Dark / Light Mode Toggle -->
+        <button class="icon-btn" id="modeToggleBtn" title="Toggle Dark / Light Mode" aria-label="Toggle Dark or Light Mode">
+          <svg id="modeIconSun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="modeIconMoon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Smart Install App Button (Android, iOS, Windows, macOS) -->
+        <button class="btn-install-app" id="installAppBtn" title="Install App on Android, iOS, Windows or macOS">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          <span>Install App</span>
+        </button>
+
+        <!-- Export JSON Backup -->
+        <button class="icon-btn hide-on-xs" id="exportJsonBtn" title="Export Tasks Backup (JSON)" aria-label="Export JSON Backup">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </button>
+
+        <!-- Import JSON Backup -->
+        <button class="icon-btn hide-on-xs" id="importJsonBtn" title="Import Tasks Backup (JSON)" aria-label="Import JSON Backup">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+        </button>
+        <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;" />
+
+        <!-- Primary Add Task CTA -->
+        <button class="btn-add-task" id="openAddTaskBtn" title="Create New Task Card (Shortcut: N)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          <span>Add Task</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN WORKSPACE
+       ======================================================================== -->
+  <main class="main-wrapper">
+
+    <!-- Focused Detail View Navigation Bar -->
+    <section class="focus-header-bar" id="focusHeaderBar" style="display: none;">
+      <button class="btn-back" id="backToAllBtn" title="Back to All Cards (Esc)">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Back</span>
+      </button>
+
+      <div class="focus-breadcrumb">
+        Task Group / <strong id="focusTaskBreadcrumbTitle">Task Details</strong>
+      </div>
+
+      <div class="focus-actions-group">
+        <button class="btn-secondary" id="focusNewTaskBtn" style="min-height: 40px;">
+          <span>+ Add Task</span>
+        </button>
+        <button class="btn-add-task" id="focusAddItemBtn" style="min-height: 40px;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Add Item</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Dashboard Stats & Search/Filter Toolbar -->
+    <section class="dashboard-controls" id="dashboardControls" style="display: none;">
+      <div class="stats-strip">
+        <div class="stat-card">
+          <div class="stat-info">
+            <span>Total Cards</span>
+            <strong id="statTotalLists">0</strong>
+          </div>
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+              <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+              <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span>Total Steps</span>
+            <strong id="statTotalItems">0</strong>
+          </div>
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span>Completed Steps</span>
+            <strong id="statCompletedSteps">0</strong>
+          </div>
+          <div class="stat-icon" style="color: var(--success);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-info">
+            <span>Overall Progress</span>
+            <strong id="statOverallProgress">0%</strong>
+          </div>
+          <div class="stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search, Filter Pills & Sort Controls -->
+      <div class="toolbar">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="search" id="searchInput" placeholder="Search task cards, tags, or steps..." />
+          <span class="kbd-hint">/</span>
+        </div>
+
+        <div class="filter-group" id="filterPillsGroup">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="active">In Progress</button>
+          <button class="filter-pill" data-filter="completed">Completed</button>
+          <button class="filter-pill" data-filter="high">High Priority</button>
+        </div>
+
+        <select class="sort-select" id="sortSelect" aria-label="Sort tasks">
+          <option value="newest">Sort: Newest First</option>
+          <option value="progress-desc">Sort: Highest Progress</option>
+          <option value="priority">Sort: Priority Level</option>
+          <option value="alpha">Sort: Alphabetical (A–Z)</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Animated Welcome / Empty State -->
+    <section class="empty-state" id="emptyState">
+      <div class="empty-illustration">
+        <div class="empty-pulse-ring"></div>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 11l3 3L22 4"></path>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+        </svg>
+      </div>
+      <h1 class="empty-title">No items in To Do list</h1>
+      <p class="empty-subtitle">
+        Welcome to your cross-device <strong>Tasks List</strong> app! Create grouped task cards, add checklist steps one by one, and track your live progress on Android, iOS, Windows, or macOS.
+      </p>
+      <div class="empty-cta-group">
+        <button class="btn-add-task" id="emptyAddTaskBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Create Your First Task</span>
+        </button>
+        <button class="btn-secondary" id="loadSampleBtn">
+          <span>Load Sample Tasks</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Task Cards Grid Container -->
+    <section class="cards-grid" id="cardsGrid"></section>
+
+  </main>
+
+  <!-- ========================================================================
+       MOBILE BOTTOM NAVIGATION BAR (Small Screens)
+       ======================================================================== -->
+  <nav class="mobile-bottom-bar" aria-label="Mobile Quick Navigation">
+    <button class="mobile-nav-btn" id="mobAllBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+      </svg>
+      <span>All Cards</span>
+    </button>
+
+    <button class="mobile-nav-btn primary-fab" id="mobAddBtn" aria-label="Add Task">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    </button>
+
+    <button class="mobile-nav-btn" id="mobInstallBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>Install</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================================
+       FOOTER
+       ======================================================================== -->
+  <footer class="app-footer">
+    Made with <span class="heart">❤️</span> by <span class="author">Ajay-Dhangar</span>
+  </footer>
+
+  <!-- ========================================================================
+       NATIVE HTML <dialog> MODALS
+       ======================================================================== -->
+
+  <!-- 1. Add / Edit Task Card Dialog -->
+  <dialog id="taskDialog">
+    <form id="taskForm" method="dialog">
+      <div class="dialog-header">
+        <h2 class="dialog-title" id="taskDialogHeading">Add New Task</h2>
+        <button type="button" class="mini-icon-btn" id="closeTaskDialogX" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="dialog-body">
+        <input type="hidden" id="editTaskId" />
+
+        <div class="form-group">
+          <label for="taskTitleInput">Task Title *</label>
+          <input type="text" id="taskTitleInput" class="form-control" placeholder="e.g., Go To Mandsaur, Do Code, Sprint Goals..." required maxlength="60" />
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="taskCategoryInput">Category / Tag</label>
+            <input type="text" id="taskCategoryInput" class="form-control" placeholder="e.g., Travel, Work, Personal" maxlength="24" />
+          </div>
+
+          <div class="form-group">
+            <label for="taskPriorityInput">Priority</label>
+            <select id="taskPriorityInput" class="form-control">
+              <option value="medium">Medium Priority</option>
+              <option value="high">High Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="taskDueInput">Due Date</label>
+            <input type="date" id="taskDueInput" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label for="taskDescInput">Notes / Description</label>
+            <input type="text" id="taskDescInput" class="form-control" placeholder="Optional details..." maxlength="120" />
+          </div>
+        </div>
+
+        <!-- Step-by-Step Checklist Items Builder -->
+        <div class="form-group" id="stepBuilderWrapper">
+          <label>Step-by-Step Checklist Items (Press Enter to add rapidly)</label>
+          <div class="step-items-builder">
+            <div class="step-input-row">
+              <input type="text" id="stepItemDraftInput" class="form-control" placeholder="Add step (e.g., Task-1)..." maxlength="80" />
+              <button type="button" class="btn-modal-primary" id="addDraftStepBtn" style="padding: 0 1rem; white-space: nowrap;">+ Step</button>
+            </div>
+            <div class="step-pills-list" id="draftStepsContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button type="submit" class="btn-modal-primary" id="saveTaskSubmitBtn">Add</button>
+        <button type="button" class="btn-modal-close" id="cancelTaskDialogBtn">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 2. Add / Edit Single Item Dialog -->
+  <dialog id="itemDialog">
+    <form id="itemForm" method="dialog">
+      <div class="dialog-header">
+        <h2 class="dialog-title" id="itemDialogHeading">Add New Item</h2>
+        <button type="button" class="mini-icon-btn" id="closeItemDialogX" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="dialog-body">
+        <input type="hidden" id="itemParentTaskId" />
+        <input type="hidden" id="editItemId" />
+
+        <div class="form-group">
+          <label for="itemTextInput">Item Name *</label>
+          <input type="text" id="itemTextInput" class="form-control" placeholder="Enter Item Name..." required maxlength="90" />
+        </div>
+      </div>
+
+      <div class="dialog-footer">
+        <button type="submit" class="btn-modal-primary" id="saveItemSubmitBtn">Add</button>
+        <button type="button" class="btn-modal-close" id="cancelItemDialogBtn">Close</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 3. Confirm Delete Dialog -->
+  <dialog id="confirmDialog">
+    <div class="dialog-header">
+      <h2 class="dialog-title" style="color: #f87171;">Confirm Delete</h2>
+    </div>
+    <div class="dialog-body">
+      <p id="confirmMessage" style="line-height: 1.5; color: var(--text-secondary);">
+        Are you sure you want to delete this item?
+      </p>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" class="btn-modal-danger" id="confirmDeleteYesBtn">Delete</button>
+      <button type="button" class="btn-modal-close" id="confirmDeleteNoBtn">Cancel</button>
+    </div>
+  </dialog>
+
+  <!-- 4. Cross-Platform PWA Install Guide Dialog -->
+  <dialog id="installDialog">
+    <div class="dialog-header">
+      <h2 class="dialog-title">Install Tasks List App</h2>
+      <button type="button" class="mini-icon-btn" id="closeInstallDialogX" aria-label="Close modal">✕</button>
+    </div>
+    <div class="dialog-body">
+      <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+        Install <strong>Tasks List</strong> directly onto your device home screen or desktop for offline access and a native full-screen app experience:
+      </p>
+
+      <div class="install-platform-card">
+        <h4>📱 iOS (iPhone & iPad — Safari)</h4>
+        <p>Tap the <strong>Share</strong> icon (square with upward arrow) at the bottom/top of Safari, scroll down, and tap <strong>"Add to Home Screen"</strong>.</p>
+      </div>
+
+      <div class="install-platform-card">
+        <h4>🤖 Android (Chrome / Edge / Brave)</h4>
+        <p>Tap the <strong>⋮ Menu</strong> in the top-right corner and select <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</p>
+      </div>
+
+      <div class="install-platform-card">
+        <h4>💻 Windows & macOS (Chrome / Edge)</h4>
+        <p>Click the <strong>Install icon</strong> in the right side of your browser's address bar, or open <strong>Menu → Save and share → Install Tasks List</strong>.</p>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button type="button" class="btn-modal-primary" id="closeInstallDialogBtn">Got It</button>
+    </div>
+  </dialog>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========================================================================
+       JAVASCRIPT PWA ENGINE & APPLICATION LOGIC
+  ======================================================================== -->
+
+  <script src="./app.js" type="module"></script>
+  
+</body>
+</html>

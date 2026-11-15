@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#11111b">
+  <meta name="description" content="TaskFlow - Your personal smart task manager.">
+  <title>TaskFlow — Your day, in focus</title>
+
+  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <a class="brand" href="#" aria-label="TaskFlow home">
+      <span class="brand-mark">✓</span>
+      <span>task<span>flow</span></span>
+    </a>
+
+    <div class="workspace-label">WORKSPACE</div>
+
+    <nav class="primary-nav">
+      <button class="nav-item active" data-filter="all">
+        <span>⌂</span> Overview
+      </button>
+
+      <button class="nav-item" data-filter="all">
+        <span>▤</span> All tasks
+        <span class="nav-count" id="allCount">0</span>
+      </button>
+
+      <button class="nav-item" data-filter="active">
+        <span>◷</span> In progress
+        <span class="nav-count" id="activeCount">0</span>
+      </button>
+
+      <button class="nav-item" data-filter="completed">
+        <span>✓</span> Completed
+        <span class="nav-count" id="completedCount">0</span>
+      </button>
+
+      <button class="nav-item" data-filter="overdue">
+        <span>!</span> Overdue
+      </button>
+    </nav>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="workspace-label">PREFERENCES</div>
+
+    <button class="nav-item" id="appearanceBtn">
+      <span>◐</span> Appearance
+    </button>
+
+    <button class="nav-item" id="exportBtn">
+      <span>⇩</span> Export data
+    </button>
+
+    <button class="nav-item" id="importBtn">
+      <span>⇧</span> Import data
+    </button>
+
+    <input type="file" id="importFile" accept=".json" hidden>
+
+    <div class="sidebar-spacer"></div>
+
+    <div class="sidebar-tip">
+      <div class="tip-icon">✦</div>
+      <strong>A little progress goes a long way.</strong>
+      <p>Keep showing up. Your future self will thank you.</p>
+    </div>
+
+    <div class="profile">
+      <div class="avatar">A</div>
+      <div class="profile-copy">
+        <strong>My Workspace</strong>
+        <span>Personal account</span>
+      </div>
+      <button class="icon-button" id="quickTheme" title="Toggle theme">◐</button>
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <header class="topbar">
+      <button class="icon-button menu-toggle" id="menuToggle">☰</button>
+
+      <div class="breadcrumb">
+        <span>Workspace</span>
+        <span>/</span>
+        <strong id="breadcrumbTitle">Overview</strong>
+      </div>
+
+      <div class="topbar-right">
+        <span id="todayLabel"></span>
+        <button class="icon-button" id="themeButton" title="Change theme">◐</button>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="page-content" id="dashboardView">
+
+      <div class="welcome-row">
+        <div>
+          <span class="eyebrow">✦ YOUR PERSONAL WORKSPACE</span>
+          <h1 id="welcomeTitle">Make today <span>count.</span></h1>
+          <p class="subtitle">
+            A clear mind starts with a clear plan.
+            What's on your list?
+          </p>
+        </div>
+
+        <button class="primary-button" id="addTaskButton">
+          <span>＋</span> Add new task
+        </button>
+      </div>
+
+      <!-- STATISTICS -->
+      <div class="stats-grid">
+
+        <article class="stat-card">
+          <div class="stat-header">
+            <span>Total tasks</span>
+            <span class="stat-icon purple">▤</span>
+          </div>
+          <h2 id="totalTasks">0</h2>
+          <p>Across your workspace</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-header">
+            <span>In progress</span>
+            <span class="stat-icon blue">◷</span>
+          </div>
+          <h2 id="activeTasks">0</h2>
+          <p>Tasks to keep moving</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-header">
+            <span>Completed</span>
+            <span class="stat-icon green">✓</span>
+          </div>
+          <h2 id="completedTasks">0</h2>
+          <p>Every step matters</p>
+        </article>
+
+        <article class="stat-card">
+          <div class="stat-header">
+            <span>Overdue</span>
+            <span class="stat-icon orange">!</span>
+          </div>
+          <h2 id="overdueTasks">0</h2>
+          <p>Worth taking a look</p>
+        </article>
+
+      </div>
+
+      <!-- OVERALL PROGRESS -->
+      <section class="progress-panel">
+        <div class="progress-heading">
+          <div>
+            <span class="section-label">YOUR MOMENTUM</span>
+            <h3>You're making progress.</h3>
+          </div>
+
+          <div class="progress-number">
+            <strong id="overallPercent">0%</strong>
+            <span>completed</span>
+          </div>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" id="overallProgress"></div>
+        </div>
+
+        <div class="progress-footer">
+          <span id="progressMessage">Your journey starts with one task.</span>
+          <span id="progressCount">0 of 0 tasks</span>
+        </div>
+      </section>
+
+      <!-- TASK LIST -->
+      <section class="task-section">
+
+        <div class="section-heading">
+          <div>
+            <span class="section-label">STAY ORGANIZED</span>
+            <h2 id="listTitle">Your tasks</h2>
+          </div>
+
+          <div class="task-tools">
+            <input
+              type="search"
+              id="searchInput"
+              placeholder="⌕ Search tasks..."
+              aria-label="Search tasks"
+            >
+
+            <select id="sortSelect" aria-label="Sort tasks">
+              <option value="recent">Recently added</option>
+              <option value="due">Due date</option>
+              <option value="priority">Priority</option>
+              <option value="title">Title A-Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-chip selected" data-filter="all">
+            All tasks <span id="allChip">0</span>
+          </button>
+
+          <button class="filter-chip" data-filter="active">
+            In progress <span id="activeChip">0</span>
+          </button>
+
+          <button class="filter-chip" data-filter="completed">
+            Completed <span id="completedChip">0</span>
+          </button>
+
+          <button class="filter-chip" data-filter="overdue">
+            Overdue <span id="overdueChip">0</span>
+          </button>
+        </div>
+
+        <div class="task-grid" id="taskGrid"></div>
+
+        <!-- EMPTY STATE -->
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">✓</div>
+          <h3 id="emptyTitle">
+            A fresh start. A world of possibilities.
+          </h3>
+          <p id="emptyMessage">
+            Your task list is clear. Add your first task
+            and turn an idea into action.
+          </p>
+          <button class="primary-button" id="emptyAddButton">
+            ＋ Create your first task
+          </button>
+        </div>
+
+      </section>
+
+      <footer class="footer">
+        <span>Made with <span class="heart">♥</span> for getting things done.</span>
+        <span>TaskFlow v1.0.0 · Your data stays on this device</span>
+      </footer>
+
+    </section>
+
+    <!-- TASK DETAILS -->
+    <section class="page-content detail-view" id="detailView" hidden>
+
+      <div class="detail-toolbar">
+        <button class="back-button" id="backButton">
+          ← Back to tasks
+        </button>
+
+        <div class="detail-actions">
+          <button class="secondary-button" id="editTaskButton">
+            ✎ Edit task
+          </button>
+
+          <button class="icon-button danger-icon" id="deleteTaskButton">
+            ×
+          </button>
+        </div>
+      </div>
+
+      <div id="detailContent"></div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-backdrop" id="taskModal" hidden>
+  <section class="modal" role="dialog" aria-modal="true">
+
+    <div class="modal-heading">
+      <div>
+        <span class="section-label">MAKE IT HAPPEN</span>
+        <h2 id="modalTitle">Create a task</h2>
+        <p>Give your next great idea a place to start.</p>
+      </div>
+
+      <button class="icon-button close-modal" data-close="taskModal">×</button>
+    </div>
+
+    <form id="taskForm">
+
+      <input type="hidden" id="taskId">
+
+      <label for="taskTitle">Task title *</label>
+      <input
+        type="text"
+        id="taskTitle"
+        class="form-control"
+        maxlength="100"
+        placeholder="e.g. Build my personal portfolio"
+        required
+      >
+
+      <label for="taskDescription">Description</label>
+      <textarea
+        id="taskDescription"
+        class="form-control"
+        rows="3"
+        maxlength="600"
+        placeholder="What do you want to achieve?"
+      ></textarea>
+
+      <div class="form-grid">
+
+        <div>
+          <label for="taskCategory">Category</label>
+          <select id="taskCategory" class="form-control">
+            <option>Personal</option>
+            <option>Work</option>
+            <option>Learning</option>
+            <option>Health</option>
+            <option>Projects</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="taskPriority">Priority</label>
+          <select id="taskPriority" class="form-control">
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="taskDue">Due date</label>
+          <input type="date" id="taskDue" class="form-control">
+        </div>
+
+        <div>
+          <label for="taskColor">Card color</label>
+          <select id="taskColor" class="form-control">
+            <option value="violet">Violet</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="orange">Orange</option>
+            <option value="pink">Pink</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="secondary-button" data-close="taskModal">
+          Cancel
+        </button>
+
+        <button type="submit" class="primary-button" id="saveTaskButton">
+          Create task →
+        </button>
+      </div>
+
+    </form>
+  </section>
+</div>
+
+<!-- DELETE CONFIRMATION -->
+<div class="modal-backdrop" id="confirmModal" hidden>
+  <section class="modal confirm-modal" role="dialog" aria-modal="true">
+    <div class="confirm-icon">!</div>
+    <h2>Delete this task?</h2>
+    <p id="confirmMessage">
+      This action cannot be undone.
+    </p>
+
+    <div class="modal-footer">
+      <button class="secondary-button" data-close="confirmModal">
+        Keep task
+      </button>
+      <button class="danger-button" id="confirmDeleteButton">
+        Yes, delete
+      </button>
+    </div>
+  </section>
+</div>
+
+<!-- APPEARANCE -->
+<div class="modal-backdrop" id="appearanceModal" hidden>
+  <section class="modal appearance-modal" role="dialog" aria-modal="true">
+
+    <div class="modal-heading">
+      <div>
+        <span class="section-label">MAKE IT YOURS</span>
+        <h2>Appearance</h2>
+        <p>Choose a look that feels right for you.</p>
+      </div>
+
+      <button class="icon-button close-modal" data-close="appearanceModal">×</button>
+    </div>
+
+    <label>Color mode</label>
+
+    <div class="mode-options">
+      <button class="mode-option" data-mode="dark">
+        <span class="mode-preview dark-preview">☾</span>
+        <strong>Dark</strong>
+      </button>
+
+      <button class="mode-option" data-mode="light">
+        <span class="mode-preview light-preview">☼</span>
+        <strong>Light</strong>
+      </button>
+
+      <button class="mode-option" data-mode="system">
+        <span class="mode-preview system-preview">◐</span>
+        <strong>System</strong>
+      </button>
+    </div>
+
+    <label>Accent color</label>
+
+    <div class="palette-options">
+      <button class="swatch" data-accent="violet" aria-label="Violet">
+        <i style="--swatch:#8b78f6"></i>
+        <span>Violet</span>
+      </button>
+
+      <button class="swatch" data-accent="blue" aria-label="Ocean blue">
+        <i style="--swatch:#4b9cf5"></i>
+        <span>Ocean</span>
+      </button>
+
+      <button class="swatch" data-accent="green" aria-label="Mint green">
+        <i style="--swatch:#35b98a"></i>
+        <span>Mint</span>
+      </button>
+
+      <button class="swatch" data-accent="orange" aria-label="Sunset">
+        <i style="--swatch:#f39b54"></i>
+        <span>Sunset</span>
+      </button>
+
+      <button class="swatch" data-accent="pink" aria-label="Rose">
+        <i style="--swatch:#e879b0"></i>
+        <span>Rose</span>
+      </button>
+    </div>
+
+    <p class="appearance-note">Your preferences are saved automatically.</p>
+  </section>
+</div>
+
+<!-- TOAST NOTIFICATIONS -->
+<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+<script src="./js/app.js"></script>
+
+</body>
+</html>
