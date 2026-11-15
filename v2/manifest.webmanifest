@@ -1,0 +1,26 @@
+
+{
+  "id": "./",
+  "name": "TaskFlow - Smart Task Manager",
+  "short_name": "TaskFlow",
+  "description": "A modern productivity and task management application.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f7f8fc",
+  "theme_color": "#6366f1",
+  "lang": "en",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./assets/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
