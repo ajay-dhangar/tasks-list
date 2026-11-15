@@ -1,6 +1,6 @@
 <div align="center">
 
-# ✅ Tasks List — Modern Multi-Theme To-Do & Task Group Manager
+# Tasks List — Modern Multi-Theme To-Do & Task Group Manager
 
 **A sleek, zero-dependency, responsive task card and checklist management web app built with Vanilla HTML5, CSS3, and ES6+ JavaScript.**
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **Tasks List** is a modern, productivity-focused To-Do web application designed around **grouped task cards**. Instead of a cluttered single-column list, users organize their goals into dedicated project or activity cards (e.g., *Do Code*, *Travel Checklists*, *Sprint Goals*), break each card down into step-by-step checklist items, and track real-time completion progress.
 
@@ -23,19 +23,19 @@ Built with pure **HTML5, CSS3, and Vanilla JavaScript**, it leverages native `<d
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-### 🗂️ Card-Based Task Grouping & Step-by-Step Builder
+### Card-Based Task Grouping & Step-by-Step Builder
 - **Multi-Card Workspace**: Organize tasks into clean, responsive grid cards with priority badges (`High`, `Medium`, `Low`), optional descriptions, and target due dates with overdue alerts.
 - **Step-by-Step Creation Modal**: Add multiple checklist steps immediately when creating a new task card using the interactive step builder inside the native `<dialog>` modal.
 - **Focused Detail View**: Click any task card's title to zoom into a dedicated single-card view complete with a **← Back** navigation bar and quick **Add Item** controls.
 
-### 📊 Real-Time Progress Tracking & Productivity Controls
+### Real-Time Progress Tracking & Productivity Controls
 - **Live Card Progress Bars**: Every card dynamically calculates and animates completion ratios (`X/Y items done` and percentage `%`).
 - **Executive KPI Dashboard**: View total task lists, total action items, completed lists, and overall workspace progress at a glance.
 - **Instant Search, Filter & Sort**: Filter cards by status (`All`, `In Progress`, `Completed`, `High Priority`), search across card titles and sub-items in real time, and sort by newest, progress percentage, or due date.
 
-### 🎨 Multi-Theme Engine & Dark/Light Mode
+### Multi-Theme Engine & Dark/Light Mode
 - **Dark & Light Modes**: Seamlessly toggle between high-contrast dark mode and crisp daylight mode.
 - **5 Curated Color Themes**:
   1. **Midnight Gold** — Deep obsidian surface with signature golden accents.
@@ -44,14 +44,14 @@ Built with pure **HTML5, CSS3, and Vanilla JavaScript**, it leverages native `<d
   4. **Emerald Forest** — Rich botanical greens for focused work.
   5. **Royal Violet** — Modern amethyst and purple tones.
 
-### 💾 Offline Persistence & Data Portability
+### Offline Persistence & Data Portability
 - **Automatic `localStorage` Sync**: All tasks, checklist items, active themes, and color modes persist automatically across browser sessions.
 - **One-Click JSON Backup**: Export your entire task workspace to a timestamped `.json` file anytime.
 - **Animated Empty State**: Welcomes first-time users with a floating animated badge and a **Load Demo Project** option to test features immediately.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 Because this project uses standard web technologies with zero dependencies, setup takes seconds:
 
@@ -69,7 +69,7 @@ Because this project uses standard web technologies with zero dependencies, setu
 
 ---
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
 | Layer | Technology & Implementation Details |
 | :--- | :--- |
@@ -79,7 +79,7 @@ Because this project uses standard web technologies with zero dependencies, setu
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 tasks-list-todo-app/
@@ -90,7 +90,7 @@ tasks-list-todo-app/
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, issues, and feature requests are welcome!
 1. Fork the repository.
@@ -101,7 +101,7 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
 
